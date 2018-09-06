@@ -26,7 +26,6 @@ alpha = 0.01
 # parameter for linear regression to fit the data points in X and y
 def computeCost(X, y, theta):
     m = y.size  # number of training examples
-    J = 0
     return ((X.dot(theta) - y) ** 2).sum() / (2 * m)
 
 # Performs gradient descent to learn theta

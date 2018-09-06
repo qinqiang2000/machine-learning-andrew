@@ -11,7 +11,8 @@ buildNumber.properties
 .mvn/timing.properties
  
 .idea/
- 
+__pycache__/
+
 ## File-based project format:
 *.iws
 *.iml
