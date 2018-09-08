@@ -7,6 +7,10 @@ def sigmoid(inX):
 def h(thea, X):
 	return X.dot(thea)
 
+def out(X,thea):
+	# thea = thea.reshape(thea.shape[0], 1)
+	return sigmoid(h(thea, X))
+
 def costFunction(thea, X, y):
 	m, n = X.shape
 	thea = thea.reshape((n, 1))
