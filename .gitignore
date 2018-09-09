@@ -12,6 +12,7 @@ buildNumber.properties
  
 .idea/
 __pycache__/
+.DS_Store/
 
 ## File-based project format:
 *.iws
