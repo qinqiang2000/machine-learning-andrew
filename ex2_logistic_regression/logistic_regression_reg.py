@@ -49,8 +49,8 @@ print('Gradient at initial theta (zeros): \n', grad[:5])
 test_theta = np.ones((X.shape[1],1))
 print('Cost test again(with lambda = 10): should be 3.16: ', costFunctionReg(test_theta, X, y, 10))
 print('Gradient at test theta - first five values only:\n', gradientReg(test_theta, X, y, 10)[:5]);
-print('Expected gradients (approx) - first five values only:\n');
-print(' 0.3460\n 0.1614\n 0.1948\n 0.2269\n 0.0922\n');
+print('Expected gradients (approx) - first five values only:');
+print(' 0.3460 0.1614 0.1948 0.2269 0.0922');
 
 ## ============= Part 2: Regularization and Accuracies =============
 #  Optional Exercise:
@@ -62,16 +62,47 @@ print(' 0.3460\n 0.1614\n 0.1948\n 0.2269\n 0.0922\n');
 #  How does the decision boundary change when you vary lambda? How does
 #  the training set accuracy vary?
 #
-input()
 
 ## ============= Part 3: Optimizing using fminunc  =============
 #  In this exercise, you will use a sci optimize function (minimize) to find the
 #  optimal parameters theta.
-result = minimize(fun=costFunction, x0=initial_theta, args=(X, y), method='TNC', jac=gradient)
+result = minimize(fun=costFunctionReg, x0=initial_theta, args=(X, y, lamda), method='BFGS'
+	, options={"maxiter":500, "disp":False} )
 optimalTheta = result.x
-
 print('Cost at theta found by minimize:', result.fun)
 print('theta: ', optimalTheta)
-print('Exam 1 score of 45 and an Exam 2 score of 85, admission probability:', out(np.array([1, 45, 85]), optimalTheta))
 
-plotDecisionBoundary(optimalTheta, X, y, 'Admitted', 'Not admitted')	
+#Build a figure showing contours for various values of regularization parameter, lambda#Build a 
+#It shows for lambda=0 we are overfitting, and for lambda=100 we are underfitting
+plt.figure(figsize=(9,10))
+
+#lambda=1
+plt.subplot(221)
+plotDecisionBoundary(optimalTheta, X, y)	
+plt.title("lambda=1")
+
+#lambda=0
+plt.subplot(222)
+lamda = 0
+result = minimize(fun=costFunctionReg, x0=initial_theta, args=(X, y, lamda), method='BFGS'
+	, options={"maxiter":500, "disp":False} )
+plotDecisionBoundary(result.x, X, y)	
+plt.title("lambda=0")
+
+#lambda=10
+plt.subplot(223)
+lamda = 10
+result = minimize(fun=costFunctionReg, x0=initial_theta, args=(X, y, lamda), method='BFGS'
+	, options={"maxiter":500, "disp":False} )
+plotDecisionBoundary(result.x, X, y)	
+plt.title("lambda=10")
+
+#lambda=100
+plt.subplot(224)
+lamda = 100
+result = minimize(fun=costFunctionReg, x0=initial_theta, args=(X, y, lamda), method='BFGS'
+	, options={"maxiter":500, "disp":False} )
+plotDecisionBoundary(result.x, X, y)	
+plt.title("lambda=100")
+
+plt.show()

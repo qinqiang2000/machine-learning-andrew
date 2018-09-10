@@ -46,4 +46,4 @@ print('Cost at theta found by minimize:', result.fun)
 print('theta: ', optimalTheta)
 print('Exam 1 score of 45 and an Exam 2 score of 85, admission probability:', out(np.array([1, 45, 85]), optimalTheta))
 
-plotDecisionBoundary(optimalTheta, X, y, 'Admitted', 'Not admitted')	
+plotDecisionBoundary(optimalTheta, X, y, pos_label='Admitted', neg_label='Not admitted')	
