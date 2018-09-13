@@ -29,28 +29,3 @@ def lrGradient(thea, X, y, lamda):
 	grad = X.T.dot(hx - y) / m + (lamda / m) * theta_reg
 
 	return grad.flatten()
-
-# other's code
-def f(params,*args):
-    X_train,y_train,reg = args
-    m,n = X_train.shape
-    J = 0
-    theta = params.reshape((n,1))
-    h = out(X_train,theta)
-    theta_1 = theta[1:,:]
-    J = -1*np.sum(y_train*np.log(h) + (1-y_train)*np.log((1-h))) / m +\
-        + 0.5 * reg * theta_1.T.dot(theta_1) / m
-    
-    return J
-
-def gradf(params,*args):
-    X_train,y_train,reg = args
-    m,n = X_train.shape
-    theta = params.reshape(-1,1)
-    h = out(X_train,theta)
-    grad = np.zeros((X_train.shape[1],1))
-    theta_1 = theta[1:,:]
-    grad = X_train.T.dot((h-y_train)) / m
-    grad[1:,:] += reg*theta_1/m  #theta0 without reg
-    g = grad.ravel()
-    return g  
