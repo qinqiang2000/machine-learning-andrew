@@ -18,8 +18,7 @@ import numpy as np
 import scipy.io as sio   # Used to load the OCTAVE *.mat files
 import random   #To pick random images to display
 from displayData import *
-from lrCostFunction import lrCostFunction, lrGradient
-from oneVsAll import *
+import predictNN as pnn
 
 ## Setup the parameters you will use for this exercise
 input_layer_size  = 400;  # 20x20 Input Images of Digits
@@ -36,8 +35,6 @@ X, y = mat['X'], mat['y']
 m = X.shape[0]
 
 # 样本中，0用10替代了（MATLAB数组从1开始的原因），所以这里将其改回0
-print(np.unique(y))
-y[y==10] = 0
 print(np.unique(y))
 
 # Randomly select 100 data points to display
@@ -57,10 +54,23 @@ print("Theta2 has shape:",Theta2.shape)
 #  neural network to predict the labels of the training set. This lets
 #  you compute the training set accuracy.
 
-pred = predict(Theta1, Theta2, X);
-
+pred = pnn.predict(Theta1, Theta2, X);
 
 ## ================ Part 3: Predict for One-Vs-All ================
-pred = predictOneVsAll(all_theta, X)
+print (y.ravel()[-10:])
+print(pred[-10:])
+print('Training Set Accuracy: ', np.mean(y.ravel() == pred)*100 )
 
-print('Training Set Accuracy: ', np.mean(y.ravel() == pred) )
+#  To give you an idea of the network's output, you can also run
+#  through the examples one at the a time to see what it is predicting.
+
+#  Randomly permute examples
+rp =np.random.choice(m, 11)
+
+for i in range(rp.size):
+  row = X[rp[i], :].reshape(1,-1)
+  
+  pred = pnn.predict(Theta1, Theta2, row)
+  print(divmod(pred, 10)[1])
+
+  displayData(row, 20)

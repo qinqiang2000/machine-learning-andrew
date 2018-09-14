@@ -36,7 +36,7 @@ def displayData(X, example_width):
     if curr_ex >= m:
         break;
   
-  fig = plt.figure(figsize=(6,6))
+  fig = plt.figure()
   img = smisc.toimage(big_picture)
   plt.imshow(img, cmap = plt.cm.gray_r)
   plt.show()
