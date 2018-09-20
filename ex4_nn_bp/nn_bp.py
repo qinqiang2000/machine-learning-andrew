@@ -6,6 +6,9 @@ import random   #To pick random images to display
 from displayData import displayData
 from unrollutility import unrollParams
 from nnCostFunction import nnCostFunction
+from sigmoidGradient import sigmoidGradient
+from randInitializeWeights import randInitializeWeights
+from checkNNGradients import checkNNGradients
 
 ## Setup the parameters you will use for this exercise
 input_layer_size  = 400  # 20x20 Input Images of Digits
@@ -23,7 +26,7 @@ X, y = mat['X'], mat['y']
 m = X.shape[0]
 
 # 样本中，0用10替代了(MATLAB数组从1开始的原因)
-print(np.unique(y))
+print(np.unique(y), "y.shape=", y.shape)
 
 # Randomly select 100 data points to display
 sel_indics = random.sample(range(m), 20)
@@ -64,8 +67,72 @@ print('Feedforward Using Neural Network ...')
 # Weight regularization parameter (we set this to 0 here).
 lamda = 0
 
-J = nnCostFunction(nn_params, input_layer_size, hidden_layer_size,
+J, Grad = nnCostFunction(nn_params, input_layer_size, hidden_layer_size,
                    num_labels, X, y, lamda)
 
-print("Cost at parameters (loaded from ex4weights): ", J
-      ,"(this value should be about 0.287629)")
+print("Cost at parameters (loaded from ex4weights): ", J, "(this value should be about 0.287629)")
+
+## =============== Part 4: Implement Regularization ===============
+#  Once your cost function implementation is correct, you should now
+#  continue to implement the regularization with the cost.
+#      
+
+# Weight regularization parameter (we set this to 1 here).
+lamda = 1
+
+J, Grad = nnCostFunction(nn_params, input_layer_size, hidden_layer_size,
+                   num_labels, X, y, lamda)
+
+print("Cost(regularized) parameters (loaded from ex4weights): ", J, "(this value should be about 0.383770)")
+
+## ================ Part 5: Sigmoid Gradient  ================
+#  Before you start implementing the neural network, you will first
+#  implement the gradient for the sigmoid function. You should complete the
+#  code in the sigmoidGradient.py file.
+#
+g = sigmoidGradient(np.array([-1, -0.5, 0, 0.5, 1]))
+print('Sigmoid gradient evaluated at [-1 -0.5 0 0.5 1]:  ', g)
+
+## ================ Part 6: Initializing Pameters ================
+#  In this part of the exercise, you will be starting to implment a two
+#  layer neural network that classifies digits. You will start by
+#  implementing a function to initialize the weights of the neural network
+#  (randInitializeWeights.py)
+print('Initializing Neural Network Parameters ...')
+
+initial_Theta1 = randInitializeWeights(input_layer_size, hidden_layer_size)
+initial_Theta2 = randInitializeWeights(hidden_layer_size, num_labels)
+
+# Unroll parameters
+initial_nn_params = [initial_Theta1, initial_Theta2]
+
+## =============== Part 7: Implement Backpropagation ===============
+#  Once your cost matches up with ours, you should proceed to implement the
+#  backpropagation algorithm for the neural network. You should add to the
+#  code you've written in nnCostFunction.m to return the partial
+#  derivatives of the parameters.
+#
+
+print('Checking Backpropagation... ')
+
+#  Check gradients by running checkNNGradients
+checkNNGradients()
+
+
+
+## =============== Part 8: Implement Regularization ===============
+#  Once your backpropagation implementation is correct, you should now
+#  continue to implement the regularization with the cost and gradient.
+#
+print('Checking Backpropagation (w/ Regularization) ... ')
+
+#  Check gradients by running checkNNGradients
+lamda = 3
+checkNNGradients(lamda)
+
+# Also output the costFunction debugging values
+debug_J, debug_grad = nnCostFunction(nn_params, input_layer_size, 
+                          hidden_layer_size, num_labels, X, y, lamda);
+
+print("Cost at (fixed) debugging parameters (w/ lambda = %f): %f " % (lamda, debug_J), 
+         '\n(for lambda = 3, this value should be about 0.576051)');

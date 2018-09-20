@@ -10,6 +10,8 @@
 #
 import numpy as np
 from scipy.special import expit #Vectorized sigmoid function
+from sigmoidGradient import sigmoidGradient
+from unrollutility import *
 
 def nnCostFunction(nn_params, 
                   input_layer_size, 
@@ -59,7 +61,8 @@ def nnCostFunction(nn_params,
   a2 = np.c_[np.ones(m), expit(z2)] # 加一列：bias
   z3 = a2.dot(Theta2.T)
   h = expit(z3)
-  print("h(x) shape:", h.shape)
+  a3 = h.T
+  # print("h(x) shape:", h.shape)
   
   # 首先把原先label表示的y变成向量模式的output
   y_vec = np.zeros((num_labels, m))
@@ -74,4 +77,22 @@ def nnCostFunction(nn_params,
   
   J = -J / m
 
-  return J
+  # 梯度
+  delta3 = a3 - y_vec
+  delta2 = Theta2[:,1:].T.dot(delta3) * sigmoidGradient(z2).T
+  D2 = delta3.dot(a2)
+  D1 = delta2.dot(a1)
+
+  D2 /= m
+  D1 /= m
+  # print("delta3", delta3.shape, "delta2:", delta2.shape, "D2:", D2.shape, "D1", D1.shape)
+
+  # 加入正则项 (regularization)
+  t1 = Theta1[:, 1:]
+  t2 = Theta2[:, 1:]
+  J += lamda * 0.5 / m * (np.sum(np.square(t1)) + np.sum(np.square(t2))) 
+
+  D2[:, 1:] =  D2[:, 1:] + lamda * t2 / m
+  D1[:, 1:] =  D1[:, 1:] + lamda * t1 / m
+
+  return J, unrollParams([D1, D2])
