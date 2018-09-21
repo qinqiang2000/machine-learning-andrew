@@ -7,8 +7,11 @@ import matplotlib.pyplot as plt
 #   [h, display_array] = DISPLAYDATA(X, example_width) displays 2D data
 #   stored in X in a nice grid. It returns the figure handle h and the 
 #   displayed array if requested.
-def displayData(X, example_width):
+def displayData(X, example_width = 0):
   m, n = X.shape
+  if example_width <= 0 :
+    example_width = round(math.sqrt(n))
+
   example_height = int(n / example_width)
 
   # Compute number of items to display

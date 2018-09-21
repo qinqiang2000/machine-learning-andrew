@@ -24,7 +24,6 @@ def checkNNGradients(lamda = 0):
   X = debugInitializeWeights(m, input_layer_size - 1)
   y = np.mod(np.arange(1, m + 1), num_labels).T + 1
   y = np.reshape(y, (y.shape[0], 1))
-  print(X.shape, y.shape, y)
 
   # Unroll parameters
   nn_params = unrollParams([Theta1, Theta2])
@@ -37,7 +36,7 @@ def checkNNGradients(lamda = 0):
   # 计算数值梯度
   numgrad = computeNumericalGradient(costFunc, nn_params)
 
-  print(np.c_[grad,numgrad])
+  # print(np.c_[grad,numgrad])
 
   # Evaluate the norm of the difference between two solutions.  
   # If you have a correct implementation, and assuming you used EPSILON = 0.0001 

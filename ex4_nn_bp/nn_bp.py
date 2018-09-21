@@ -2,6 +2,7 @@
 #
 import numpy as np
 import scipy.io as sio   # Used to load the OCTAVE *.mat files
+import scipy.optimize as op
 import random   #To pick random images to display
 from displayData import displayData
 from unrollutility import unrollParams
@@ -9,6 +10,7 @@ from nnCostFunction import nnCostFunction
 from sigmoidGradient import sigmoidGradient
 from randInitializeWeights import randInitializeWeights
 from checkNNGradients import checkNNGradients
+from predictNN import predict
 
 ## Setup the parameters you will use for this exercise
 input_layer_size  = 400  # 20x20 Input Images of Digits
@@ -62,7 +64,7 @@ nn_params = unrollParams([Theta1, Theta2])
 #  first so that it will be easier for you to debug. Later, in part 4, you
 #  will get to implement the regularized cost.
 #
-print('Feedforward Using Neural Network ...')
+print('\nFeedforward Using Neural Network ...')
 
 # Weight regularization parameter (we set this to 0 here).
 lamda = 0
@@ -91,20 +93,20 @@ print("Cost(regularized) parameters (loaded from ex4weights): ", J, "(this value
 #  code in the sigmoidGradient.py file.
 #
 g = sigmoidGradient(np.array([-1, -0.5, 0, 0.5, 1]))
-print('Sigmoid gradient evaluated at [-1 -0.5 0 0.5 1]:  ', g)
+print('\nSigmoid gradient evaluated at [-1 -0.5 0 0.5 1]:  ', g)
 
 ## ================ Part 6: Initializing Pameters ================
 #  In this part of the exercise, you will be starting to implment a two
 #  layer neural network that classifies digits. You will start by
 #  implementing a function to initialize the weights of the neural network
 #  (randInitializeWeights.py)
-print('Initializing Neural Network Parameters ...')
+print('\nInitializing Neural Network Parameters ...')
 
 initial_Theta1 = randInitializeWeights(input_layer_size, hidden_layer_size)
 initial_Theta2 = randInitializeWeights(hidden_layer_size, num_labels)
 
 # Unroll parameters
-initial_nn_params = [initial_Theta1, initial_Theta2]
+initial_nn_params = unrollParams([initial_Theta1, initial_Theta2])
 
 ## =============== Part 7: Implement Backpropagation ===============
 #  Once your cost matches up with ours, you should proceed to implement the
@@ -113,18 +115,16 @@ initial_nn_params = [initial_Theta1, initial_Theta2]
 #  derivatives of the parameters.
 #
 
-print('Checking Backpropagation... ')
+print('\nChecking Backpropagation... ')
 
 #  Check gradients by running checkNNGradients
 checkNNGradients()
-
-
 
 ## =============== Part 8: Implement Regularization ===============
 #  Once your backpropagation implementation is correct, you should now
 #  continue to implement the regularization with the cost and gradient.
 #
-print('Checking Backpropagation (w/ Regularization) ... ')
+print('\nChecking Backpropagation (w/ Regularization) ... ')
 
 #  Check gradients by running checkNNGradients
 lamda = 3
@@ -134,5 +134,64 @@ checkNNGradients(lamda)
 debug_J, debug_grad = nnCostFunction(nn_params, input_layer_size, 
                           hidden_layer_size, num_labels, X, y, lamda);
 
-print("Cost at (fixed) debugging parameters (w/ lambda = %f): %f " % (lamda, debug_J), 
-         '\n(for lambda = 3, this value should be about 0.576051)');
+print("Cost at (fixed) debugging parameters (w/ lambda = %f): %f \n" % (lamda, debug_J), 
+         '(for lambda = 3, this value should be about 0.576051)');
+
+## =================== Part 9: Training NN ===================
+#  You have now implemented all the code necessary to train a neural 
+#  network. To train your neural network, we will now use "fmincg", which
+#  is a function which works similarly to "fminunc". Recall that these
+#  advanced optimizers are able to train our cost functions efficiently as
+#  long as we provide them with the gradient computations.
+#
+print('\nTraining Neural Network... ')
+
+#  After you have completed the assignment, change the MaxIter to a larger
+#  value to see how more training helps.
+minimize_method = "L-BFGS-B" # CG, L-BFGS-B, TNC, ...
+
+opts = {'maxiter':100}
+if minimize_method == "TNC":
+    opts['maxCGit'] = 0
+    opts['stepmx'] = 500
+elif minimize_method == 'L-BFGS-B':
+    opts['eps'] = 1e-8
+else:
+    pass
+
+#  You should also try different values of lambda
+lamda = 1;
+
+# Now, costFunction is a function that takes in only one argument (the
+# neural network parameters)
+Result = op.minimize(fun = nnCostFunction,
+                     x0 = initial_nn_params,
+                     args = (input_layer_size, hidden_layer_size, num_labels, X, y, lamda),
+                     method = minimize_method,
+                     jac = True,
+                     options= opts)
+ 
+optimal_theta = Result.x;
+
+# Obtain Theta1 and Theta2 back from optimal_theta
+Theta1 = optimal_theta[:hidden_layer_size * (input_layer_size + 1)].reshape(hidden_layer_size, input_layer_size + 1)
+Theta2 = optimal_theta[hidden_layer_size * (input_layer_size + 1):].reshape(num_labels, hidden_layer_size + 1)
+
+print("Theta1 has shape:",Theta1.shape, Theta1[0,0], Theta1[-1,-1])
+print("Theta2 has shape:",Theta2.shape, Theta2[0,0], Theta2[-1,-1])
+## ================= Part 9: Visualize Weights =================
+#  You can now "visualize" what the neural network is learning by 
+#  displaying the hidden units to see what features they are capturing in 
+#  the data.
+
+print('\nVisualizing Neural Network... ')
+# displayData(Theta1[:, 1:])
+
+## ================= Part 10: Implement Predict =================
+#  After training the neural network, we would like to use it to predict
+#  the labels. You will now implement the "predict" function to use the
+#  neural network to predict the labels of the training set. This lets
+#  you compute the training set accuracy.
+
+pred = predict(Theta1, Theta2, X)
+print('Training Set Accuracy: ',  np.mean(y.ravel() == pred) * 100)
