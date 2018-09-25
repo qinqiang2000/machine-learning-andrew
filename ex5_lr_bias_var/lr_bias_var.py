@@ -6,6 +6,7 @@ import scipy.io as sio   # Used to load the OCTAVE *.mat files
 import matplotlib.pyplot as plt
 from linearRegCostFunction import linearRegCostFunction
 from trainLinearReg import trainLinearReg
+from learningCurve import learningCurve
 
 ## =========== Part 1: Loading and Visualizing Data =============
 #  We start the exercise by first loading and visualizing the dataset. 
@@ -59,4 +60,28 @@ theta = trainLinearReg(X, y, lamda);
 #  Plot fit over the data
 pred = X @ theta
 plt.plot(X[:,1:], pred, 'b--')
+# plt.show()
+
+## =========== Part 5: Learning Curve for Linear Regression =============
+#  Next, you should implement the learningCurve function. 
+#
+#  Write Up Note: Since the model is underfitting the data, we expect to
+#                 see a graph with "high bias" -- Figure 3 in ex5.pdf 
+#
+
+error_train, error_val = learningCurve(X, y, np.insert(Xval, 0, 1, axis=1), yval, 0);
+
+plt.figure()
+plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val);
+plt.title('Learning curve for linear regression')
+plt.legend('Train', 'Cross Validation')
+plt.xlabel('Number of training examples')
+plt.ylabel('Error')
+plt.xlim((0, 13))
+plt.ylim((0, 150))
+
+print('# Training Examples\tTrain Error\tCross Validation Error\n')
+for i in range(m):
+    print('  \t%d\t\t%f\t%f\n' %(i, error_train[i], error_val[i]))
+
 plt.show()
