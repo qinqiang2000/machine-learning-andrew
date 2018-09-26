@@ -11,6 +11,7 @@ from polyFeatures import polyFeatures
 from featureNormalize import featureNormalize
 from plotData import plotData
 from plotFit import plotFit
+from validationCurve import validationCurve
 
 ## =========== Part 1: Loading and Visualizing Data =============
 #  We start the exercise by first loading and visualizing the dataset. 
@@ -30,7 +31,6 @@ print('X.shape=',X.shape)
 
 # Plot training data
 plotData(X, y)
-# plt.show()
 
 X = np.insert(X, 0, 1, axis=1)
 
@@ -135,5 +135,24 @@ print('Polynomial Regression (lambda = %f)' % lamda)
 print('# Training Examples\tTrain Error\tCross Validation Error\n')
 for i in range(m):
     print('  \t%d\t\t%f\t%f\n' %(i, error_train[i], error_val[i]))
+
+# plt.show()
+
+## =========== Part 8: Validation for Selecting Lambda =============
+#  You will now implement validationCurve to test various values of 
+#  lambda on a validation set. You will then use this to select the
+#  "best" lambda value.
+
+lambda_vec, error_train, error_val = validationCurve(X_poly, y, X_poly_val, yval)
+
+plt.figure()
+plt.plot(lambda_vec, error_train, lambda_vec, error_val)
+plt.legend(['Train', 'Cross Validation'], loc = 0, ncol = 2)
+plt.xlabel('lambda');
+plt.ylabel('Error');
+
+print('lambda\t\tTrain Error\tValidation Error')
+for i in range(len(lambda_vec)):
+	print(' %f\t%f\t%f\n' %(lambda_vec[i], error_train[i], error_val[i]))
 
 plt.show()
