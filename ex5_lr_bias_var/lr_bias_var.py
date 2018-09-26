@@ -7,6 +7,10 @@ import matplotlib.pyplot as plt
 from linearRegCostFunction import linearRegCostFunction
 from trainLinearReg import trainLinearReg
 from learningCurve import learningCurve
+from polyFeatures import polyFeatures
+from featureNormalize import featureNormalize
+from plotData import plotData
+from plotFit import plotFit
 
 ## =========== Part 1: Loading and Visualizing Data =============
 #  We start the exercise by first loading and visualizing the dataset. 
@@ -25,9 +29,7 @@ m = X.shape[0]
 print('X.shape=',X.shape)
 
 # Plot training data
-plt.plot(X, y, 'rx')
-plt.xlabel('Change in water level (x)')
-plt.ylabel('Water flowing out of the dam (y)')
+plotData(X, y)
 # plt.show()
 
 X = np.insert(X, 0, 1, axis=1)
@@ -54,8 +56,8 @@ print('Gradient at theta = [1 ; 1]:  [%f; %f]'
 #
 
 #  Train linear regression with lambda = 0
-lamda = 0;
-theta = trainLinearReg(X, y, lamda);
+lamda = 0
+theta = trainLinearReg(X, y, lamda)
 
 #  Plot fit over the data
 pred = X @ theta
@@ -69,17 +71,67 @@ plt.plot(X[:,1:], pred, 'b--')
 #                 see a graph with "high bias" -- Figure 3 in ex5.pdf 
 #
 
-error_train, error_val = learningCurve(X, y, np.insert(Xval, 0, 1, axis=1), yval, 0);
+error_train, error_val = learningCurve(X, y, np.insert(Xval, 0, 1, axis=1), yval, 0)
 
 plt.figure()
-plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val);
+plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val)
 plt.title('Learning curve for linear regression')
-plt.legend('Train', 'Cross Validation')
 plt.xlabel('Number of training examples')
 plt.ylabel('Error')
 plt.xlim((0, 13))
 plt.ylim((0, 150))
 
+print('# Training Examples\tTrain Error\tCross Validation Error\n')
+for i in range(m):
+    print('  \t%d\t\t%f\t%f\n' %(i, error_train[i], error_val[i]))
+
+# plt.show()
+
+## =========== Part 6: Feature Mapping for Polynomial Regression =============
+#  One solution to this is to use polynomial regression. You should now
+#  complete polyFeatures to map each example into its powers
+#
+p = 6
+
+# Map X onto Polynomial Features and Normalize
+X_poly = polyFeatures(X[:, 1:], p)
+X_poly, mu, sigma = featureNormalize(X_poly)  # Normalize
+X_poly = np.insert(X_poly, 0, 1 , axis=1)     # Add Ones
+
+# Map X_poly_test and normalize (using mu and sigma)
+X_poly_test = polyFeatures(Xtest, p)
+X_poly_test = (X_poly_test - mu) / sigma
+X_poly_test = np.insert(X_poly_test, 0, 1 , axis=1)     # Add Ones
+
+# Map X_poly_val and normalize (using mu and sigma)
+X_poly_val = polyFeatures(Xval, p)
+X_poly_val = (X_poly_val - mu) / sigma
+X_poly_val = np.insert(X_poly_val, 0, 1 , axis=1)     # Add Ones
+
+## =========== Part 7: Learning Curve for Polynomial Regression =============
+#  Now, you will get to experiment with polynomial regression with multiple
+#  values of lambda. The code below runs polynomial regression with 
+#  lambda = 0. You should try running the code with different values of
+#  lambda to see how the fit and learning curve change.
+#
+
+lamda = 0;
+theta = trainLinearReg(X_poly, y, lamda)
+
+# Plot training data and fit
+plotData(X[:,1:], y)
+plotFit(X[:,1:].min(), X[:,1:].max(), mu, sigma, theta, p)
+plt.title('Polynomial Regression Fit (lambda = %.2f)' % lamda)
+
+error_train, error_val = learningCurve(X_poly, y, X_poly_val, yval, 0)
+
+plt.figure()
+plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val)
+plt.title('Polynomial Learing Curve (lambda = %.2f)' % lamda)
+plt.xlabel('Number of training examples')
+plt.ylabel('Error')
+
+print('Polynomial Regression (lambda = %f)' % lamda)
 print('# Training Examples\tTrain Error\tCross Validation Error\n')
 for i in range(m):
     print('  \t%d\t\t%f\t%f\n' %(i, error_train[i], error_val[i]))
