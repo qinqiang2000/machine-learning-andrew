@@ -30,6 +30,7 @@ m = X.shape[0]
 print('X.shape=',X.shape)
 
 # Plot training data
+plt.figure(1)
 plotData(X, y)
 
 X = np.insert(X, 0, 1, axis=1)
@@ -73,7 +74,7 @@ plt.plot(X[:,1:], pred, 'b--')
 
 error_train, error_val = learningCurve(X, y, np.insert(Xval, 0, 1, axis=1), yval, 0)
 
-plt.figure()
+plt.figure(2)
 plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val)
 plt.title('Learning curve for linear regression')
 plt.xlabel('Number of training examples')
@@ -91,7 +92,7 @@ for i in range(m):
 #  One solution to this is to use polynomial regression. You should now
 #  complete polyFeatures to map each example into its powers
 #
-p = 6
+p = 8
 
 # Map X onto Polynomial Features and Normalize
 X_poly = polyFeatures(X[:, 1:], p)
@@ -115,27 +116,62 @@ X_poly_val = np.insert(X_poly_val, 0, 1 , axis=1)     # Add Ones
 #  lambda to see how the fit and learning curve change.
 #
 
-lamda = 0;
+lamda = 0
 theta = trainLinearReg(X_poly, y, lamda)
-
+xmin = X[:,1:].min()
+xmax = X[:,1:].max()
 # Plot training data and fit
+plt.figure(3)
+plt.subplot(311)
 plotData(X[:,1:], y)
-plotFit(X[:,1:].min(), X[:,1:].max(), mu, sigma, theta, p)
-plt.title('Polynomial Regression Fit (lambda = %.2f)' % lamda)
+plotFit(xmin, xmax, mu, sigma, theta, p)
+plt.text(xmin ,28, 'Polynomial Regression Fit (lambda = %.2f)' % lamda)
 
-error_train, error_val = learningCurve(X_poly, y, X_poly_val, yval, 0)
+error_train, error_val = learningCurve(X_poly, y, X_poly_val, yval, lamda)
 
-plt.figure()
+plt.figure(4)
+plt.subplot(121)
 plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val)
+plt.legend(['Train', 'Cross Validation'], loc = 0, ncol = 2)
 plt.title('Polynomial Learing Curve (lambda = %.2f)' % lamda)
 plt.xlabel('Number of training examples')
 plt.ylabel('Error')
+plt.grid(True)
 
 print('Polynomial Regression (lambda = %f)' % lamda)
 print('# Training Examples\tTrain Error\tCross Validation Error\n')
 for i in range(m):
     print('  \t%d\t\t%f\t%f\n' %(i, error_train[i], error_val[i]))
 
+# plt.show()
+
+## =========== Part 7.1 Optional: Adjusting the regularization parameter =============
+lamda = 1
+theta = trainLinearReg(X_poly, y, lamda)
+plt.figure(3)
+plt.subplot(312)
+plotData(X[:,1:], y)
+plotFit(xmin, xmax, mu, sigma, theta, p)
+plt.text(xmin ,38, 'Polynomial Regression Fit (lambda = %.2f)' % lamda)
+
+error_train, error_val = learningCurve(X_poly, y, X_poly_val, yval, lamda)
+
+plt.figure(4)
+plt.subplot(122)
+plt.plot(np.arange(1, m + 1), error_train, np.arange(1, m + 1), error_val)
+plt.legend(['Train', 'Cross Validation'], loc = 0, ncol = 2)
+plt.title('Polynomial Learing Curve (lambda = %.2f)' % lamda)
+plt.xlabel('Number of training examples')
+plt.ylabel('Error')
+plt.grid(True)
+
+lamda = 100
+theta = trainLinearReg(X_poly, y, lamda)
+plt.figure(3)
+plt.subplot(313)
+plotData(X[:,1:], y)
+plotFit(xmin, xmax, mu, sigma, theta, p)
+plt.text(xmin ,20, 'Polynomial Regression Fit (lambda = %.2f)' % lamda)
 # plt.show()
 
 ## =========== Part 8: Validation for Selecting Lambda =============
@@ -145,7 +181,7 @@ for i in range(m):
 
 lambda_vec, error_train, error_val = validationCurve(X_poly, y, X_poly_val, yval)
 
-plt.figure()
+plt.figure(5)
 plt.plot(lambda_vec, error_train, lambda_vec, error_val)
 plt.legend(['Train', 'Cross Validation'], loc = 0, ncol = 2)
 plt.xlabel('lambda');
@@ -155,4 +191,17 @@ print('lambda\t\tTrain Error\tValidation Error')
 for i in range(len(lambda_vec)):
 	print(' %f\t%f\t%f\n' %(lambda_vec[i], error_train[i], error_val[i]))
 
+# 最佳是3
+theta = trainLinearReg(X_poly, y, 3)
+print("test error: %f" % linearRegCostFunction(theta, X_poly_test, ytest, 0)[0])
+input()
+
 plt.show()
+
+## =========== Part 9: Optional: Plotting learning curves with randomly selected examples =============
+""" first randomly select i examples from the training set and i examples from the cross validation set.
+You will then learn the parameters θ using the randomly chosen training set and evaluate the parameters
+θ on the randomly chosen training set and cross validation set. The above
+steps should then be repeated multiple times (say 50) and the averaged error
+should be used to determine the training error and cross validation error for
+i examples. """

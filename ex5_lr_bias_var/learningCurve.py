@@ -29,7 +29,7 @@ def learningCurve(X, y, Xval, yval, lamda):
     ySub = y[:i, :]
 
     theta = trainLinearReg(xSub, ySub, lamda)
-    error_train[i-1] = linearRegCostFunction(theta, xSub, ySub, lamda)[0]
-    error_val[i-1] = linearRegCostFunction(theta, Xval, yval, lamda)[0]
+    error_train[i-1] = linearRegCostFunction(theta, xSub, ySub, 0)[0]
+    error_val[i-1] = linearRegCostFunction(theta, Xval, yval, 0)[0]
 
   return error_train, error_val
