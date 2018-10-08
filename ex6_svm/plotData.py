@@ -11,8 +11,7 @@ def plotData(X, y):
 
   plt.xlabel('X1')
   plt.ylabel('X2')
-  # plt.legend(loc = 'upper left')
-
+  
 def plotBoundary(clf,  X):
   # Make classification predictions over a grid of values
   x1plot = np.linspace(X[:,0].min() * 1.1, X[:,0].max() * 1.1, 500)

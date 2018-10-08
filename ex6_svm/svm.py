@@ -6,6 +6,7 @@ import scipy.io as sio   # Used to load the OCTAVE *.mat files
 import matplotlib.pyplot as plt
 from sklearn import svm
 from plotData import *
+from gaussianKernel import *
 
 ## =========== Part 1: Loading and Visualizing Data =============
 #  We start the exercise by first loading and visualizing the dataset. 
@@ -13,13 +14,12 @@ from plotData import *
 #  the data.
 
 # Load Training Data
-print('Loading and Visualizing Data ...')
+print('Loading and Visualizing Dataset1 ...')
 
 # Load from ex6data1: 
 # You will have X, y in your environment
 mat = sio.loadmat('ex6data1.mat')
 X, y = mat['X'], mat['y']
-m = X.shape[0]
 
 # Plot training data
 """ 
@@ -50,9 +50,42 @@ for C in [1, 100]:
     plotBoundary(clf, X)
     plt.title('SVM Decision Boundary with C = {} (Example Dataset 1'.format(C))
 
-plt.show()
+# plt.show()
 
 ## =============== Part 3: Implementing Gaussian Kernel ===============
 #  You will now implement the Gaussian kernel to use
 #  with the SVM. You should complete the code in gaussianKernel.m
 print('\nEvaluating the Gaussian Kernel ...')
+
+x1 = np.array([1, 2, 1])
+x2 = np.array([0, 4, -1]) 
+sigma = 2
+sim = gaussianKernel(x1, x2, sigma)
+
+print("Gaussian Kernel between x1 = [1; 2; 1], x2 = [0; 4; -1], sigma = %f :"
+    "\n\t%f\n(for sigma = 2, this value should be about 0.324652)" % (sigma, sim))
+
+## =============== Part 4: Visualizing Dataset 2 ================
+#  The following code will load the next dataset into your environment and 
+#  plot the data.     
+
+print('\nLoading and Visualizing Dataset2 ...')
+
+# Load from ex6data2: 
+# You will have X, y in your environment
+mat = sio.loadmat('ex6data2.mat')
+X, y = mat['X'], mat['y']
+
+# Plot training data
+plt.figure()
+plotData(X, y)
+# plt.show()
+
+## ========== Part 5: Training SVM with RBF Kernel (Dataset 2) ==========
+#  After you have implemented the kernel, we can now use it to train the 
+#  SVM classifier.
+
+printf('\nTraining SVM with RBF Kernel (this may take 1 to 2 minutes) ...')
+
+#  SVM Parameters
+C = 1; sigma = 0.1;
