@@ -85,7 +85,27 @@ plotData(X, y)
 #  After you have implemented the kernel, we can now use it to train the 
 #  SVM classifier.
 
-printf('\nTraining SVM with RBF Kernel (this may take 1 to 2 minutes) ...')
+print('\nTraining SVM with RBF Kernel (this may take 1 to 2 minutes) ...')
 
 #  SVM Parameters
 C = 1; sigma = 0.1;
+
+# I will use the of-course built-in gaussian kernel in my SVM software
+# because it's certainly more optimized than mine.
+# It is called 'rbf' and instead of dividing by sigmasquared,
+# it multiplies by 'gamma'. As long as I set gamma = sigma^(-2),
+# it will work just the same.
+gamma = np.power(sigma,-2.)
+clf_rbf = svm.SVC(C=C, kernel='rbf', gamma=gamma)
+clf_rbf.fit(X, y.ravel()) # train
+
+#看一下训练的准确率
+y1_pred = clf_rbf.predict(X)
+acc_train = np.mean(y1_pred == y.ravel())
+print("C = %.1f, the accuracy of train data set: %f" %(C, acc_train))
+
+plt.figure()
+plotData(X, y)
+plotBoundary(clf_rbf, X)
+plt.title('SVM Decision Boundary with C = {} (Example Dataset 1'.format(C))
+plt.show()
