@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 from sklearn import svm
 from plotData import *
 from gaussianKernel import *
+from dataset3Params import *
 
 ## =========== Part 1: Loading and Visualizing Data =============
 #  We start the exercise by first loading and visualizing the dataset. 
@@ -36,7 +37,8 @@ print('\nTraining Linear SVM ...')
 # You should try to change the C value below and see how the decision
 # boundary varies (e.g., try C = 1000)
 
-for C in [1, 100]:
+plt.figure(figsize=(9,9))
+for index, C in enumerate([1, 100]):
     clf = svm.SVC(C, kernel='linear') # model
     clf.fit(X, y.ravel()) # train
 
@@ -45,10 +47,10 @@ for C in [1, 100]:
     acc_train = np.mean(y1_pred == y.ravel())
     print("C = %.1f, the accuracy of train data set: %f" %(C, acc_train))
 
-    plt.figure()
+    plt.subplot(211 + index)
     plotData(X, y)
     plotBoundary(clf, X)
-    plt.title('SVM Decision Boundary with C = {} (Example Dataset 1'.format(C))
+    plt.title('SVM Decision Boundary with C = {} (Example Dataset 1)'.format(C))
 
 # plt.show()
 
@@ -77,7 +79,8 @@ mat = sio.loadmat('ex6data2.mat')
 X, y = mat['X'], mat['y']
 
 # Plot training data
-plt.figure()
+plt.figure(figsize=(9,9))
+plt.subplot(211)
 plotData(X, y)
 # plt.show()
 
@@ -95,7 +98,7 @@ C = 1; sigma = 0.1;
 # It is called 'rbf' and instead of dividing by sigmasquared,
 # it multiplies by 'gamma'. As long as I set gamma = sigma^(-2),
 # it will work just the same.
-gamma = np.power(sigma,-2.)
+gamma = np.power(sigma, -2.)
 clf_rbf = svm.SVC(C=C, kernel='rbf', gamma=gamma)
 clf_rbf.fit(X, y.ravel()) # train
 
@@ -104,8 +107,43 @@ y1_pred = clf_rbf.predict(X)
 acc_train = np.mean(y1_pred == y.ravel())
 print("C = %.1f, the accuracy of train data set: %f" %(C, acc_train))
 
-plt.figure()
+plt.subplot(212)
 plotData(X, y)
 plotBoundary(clf_rbf, X)
-plt.title('SVM Decision Boundary with C = {} (Example Dataset 1'.format(C))
+plt.title('SVM Decision Boundary with C = {} (Example Dataset 2)'.format(C))
+# plt.show()
+
+## =============== Part 6: Visualizing Dataset 3 ================
+#  The following code will load the next dataset into your environment and 
+#  plot the data. 
+print('\nLoading and Visualizing Dataset3 ...')
+
+# Load from ex6data3: 
+# You will have X, y in your environment
+mat = sio.loadmat('ex6data3.mat')
+X, y = mat['X'], mat['y']
+Xval, yval = mat['Xval'], mat['yval']
+
+# Plot training data
+plt.figure(figsize=(9,9))
+plt.subplot(211)
+plotData(X, y)
+
+## ========== Part 7: Training SVM with RBF Kernel (Dataset 3) ==========
+#  This is a different dataset that you can use to experiment with. Try
+#  different values of C and sigma here.
+
+print('\Training SVM with RBF Kernel (Dataset 3) ...')
+
+# Try different SVM Parameters here
+C, sigma = dataset3Params(X, y, Xval, yval)
+
+# Train the SVM
+clf_rbf = svm.SVC(C=C, kernel='rbf', gamma=np.power(sigma, -2.))
+clf_rbf.fit(X, y.ravel()) 
+
+plt.subplot(212)
+plotData(X, y)
+plotBoundary(clf_rbf, X)
+plt.title('SVM Decision Boundary with C = {} (Example Dataset 3)'.format(C))
 plt.show()
