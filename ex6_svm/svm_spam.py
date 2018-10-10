@@ -21,6 +21,7 @@ with open('emailSample1.txt', 'r') as f:
 
 print('length of vector = {}\nnum of non-zero = {}'
         .format(len(features), int(features.sum())))
+print(features.shape)
 
 ## =========== Part 2: Train Linear SVM for Spam Classification ========
 #  In this section, you will train a linear classifier to determine if an
@@ -69,3 +70,29 @@ print('\nTop predictors of spam: ')
 for i in range(15):
     j = idx[i]
     print("{} ".format(vocabList[j]))
+
+## =================== Part 5: Try Your Own Emails =====================
+#  Now that you've trained the spam classifier, you can use it on your own
+#  emails! In the starter code, we have included spamSample1.txt,
+#  spamSample2.txt, emailSample1.txt and emailSample2.txt as examples. 
+#  The following code reads in one of these emails and then uses your 
+#  learned SVM classifier to determine whether the email is Spam or 
+#  Not Spam
+
+# Set the file to be read in (change this to spamSample2.txt,
+# emailSample1.txt or emailSample2.txt to see different predictions on
+# different emails types). Try your own emails as well!
+files = ['spamSample1.txt', 'spamSample2.txt', 'emailSample1.txt', 'emailSample2.txt']
+for filename in files:
+    #  Read and predict
+    # Extract Features
+    with open(filename, 'r') as f:
+        features =processEmail(f.read())
+
+    # 转换为2D array
+    x = features.reshape(1, -1)
+
+    p = clf.predict(x)
+
+    print("\nProcessed %s\nSpam Classification: %d" % (filename, p))
+    print("(1 indicates spam, 0 indicates not spam)\n")

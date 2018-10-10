@@ -110,7 +110,6 @@ def processEmail(email):
 
     #  Load Vocabulary
     vocabList = getVocabList()
-    print(vocabList.shape)
 
     # Look up the word in the dictionary and add to word_indices if found
     word_indices = np.zeros(len(vocabList))
