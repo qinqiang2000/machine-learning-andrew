@@ -16,6 +16,9 @@ __pycache__/
 .DS_Store/
 .DS_Store
 .vscode/
+easy*/
+hard_ham/
+spam*/
 
 ## File-based project format:
 *.iws

@@ -26,7 +26,7 @@ def getVocabList():
     # Total number of words in the vocab.txt is 1899
     df = pd.read_table('vocab.txt', names=['words'])
     vocab = df.values
-
+    
     return vocab
 
 """ 
@@ -104,12 +104,13 @@ returns a list of word_indices
    word_indices = PROCESSEMAIL(email_contents) preprocesses 
    the body of an email and returns a list of indices of the 
    words contained in the email.  """
-def processEmail(email):
+def processEmail(email, vocabList=None):
     # Preprocess and tokenList Email 
     tokenList = email2TokenList(email)
 
     #  Load Vocabulary
-    vocabList = getVocabList()
+    if vocabList is None:
+        vocabList = getVocabList()
 
     # Look up the word in the dictionary and add to word_indices if found
     word_indices = np.zeros(len(vocabList))
