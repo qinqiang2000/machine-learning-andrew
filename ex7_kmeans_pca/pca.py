@@ -3,11 +3,19 @@
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib
+from skimage import io
+import random
 from featureNormalize import featureNormalize
 from pca_fun import *
 from projectData import projectData
 from recoverData import recoverData
 from displayData import displayData
+from runkMeans import runkMeans
+from kMeansInitCentroids import *
+from findClosestCentroids import findClosestCentroids
+
 
 ## ================== Part 1: Load Example Dataset  ===================
 #  We start this exercise by using a small dataset that is easily to
@@ -106,8 +114,6 @@ print("U.shape:", U.shape, "S.shape:", S.shape, "V.shape:", V.shape)
 
 displayData(U[:,:36].T, 6, 6)
 
-# plt.show()
-
 ## ============= Part 6: Dimension Reduction for Faces =================
 #  Project images to the eigen space using the top k eigenvectors 
 #  If you are applying a machine learning algorithm 
@@ -129,4 +135,50 @@ X_rec  = recoverData(Z, U, K)
 print(X_rec.shape)
 
 displayData(X_rec)
+# plt.show()
+
+## === Part 8(a): Optional (ungraded) Exercise: PCA for Visualization ===
+#  One useful application of PCA is to use it to visualize high-dimensional
+#  data. In the last K-Means exercise you ran K-Means on 3-dimensional 
+#  pixel colors of an image. We first visualize this output in 3D, and then
+#  apply PCA to obtain a visualization in 2D.
+A = io.imread('bird_small.png')
+
+# Divide every entry in A by 255 so all values are in the range of 0 to 1
+A = A / 255.
+
+X = A.reshape(-1, 3)
+print(X.shape) 
+
+K = 16
+max_iters = 10
+initial_centroids = kMeansInitCentroids(X, K)
+centroids, idx = runkMeans(X, initial_centroids, max_iters, False)
+
+# Find closest cluster members（runkMeans返回的idx是倒数第二迭代的，因此这里要再算一次）
+idx = findClosestCentroids(X, centroids)
+
+#  Sample 1000 random indexes (since working with all the data is
+#  too expensive. If you have a fast computer, you may increase this.
+sel = random.sample(range(X.shape[0]), 2000)
+color_base = np.array(random.sample(list(matplotlib.colors.cnames.keys()),K))
+colors = color_base[idx[sel] - 1].ravel().tolist()
+
+ax = Axes3D(plt.figure())
+ax.scatter(X[sel,0], X[sel,1], X[sel,2], s=10, c=colors)
+
+## === Part 8(b): Optional (ungraded) Exercise: PCA for Visualization ===
+# Use PCA to project this cloud to 2D for visualization
+#  Before running PCA, it is important to first normalize X
+X_norm, mu, sigma = featureNormalize(X)
+
+# Run PCA
+U, S, V = pca(X_norm)
+
+# PCA and project the data to 2D
+Z = projectData(X_norm, U, 2)
+print("Z,idx:", Z.shape, idx.shape)
+
+plt.figure()
+plt.scatter(Z[sel,0], Z[sel,1], s=10, c=colors)
 plt.show()
