@@ -53,7 +53,6 @@ p = multivariateGaussian(X, mu, sigma2)
 
 # Visualize the fit
 visualizeFit(X,  mu, sigma2)
-# plt.show()
 
 """ 
 ================== Part 3: Find Outliers ===================
@@ -67,4 +66,8 @@ print('\nBest epsilon found using cross-validation: %e'% epsilon)
 print('Best F1 on Cross Validation Set:  %f'% F1)
 print('   (you should see a value epsilon of about 8.99e-05)')
 print('   (you should see a Best F1 value of  0.875000)')
+
+outliters = np.where(p.ravel() < epsilon)
+plt.plot(X[outliters,0], X[outliters,1], 'ro', lw=2, ms=10, fillstyle='none')
+plt.show()
 
