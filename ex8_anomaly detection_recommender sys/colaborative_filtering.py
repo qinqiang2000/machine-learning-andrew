@@ -1,10 +1,14 @@
 import numpy as np
 import scipy.io as sio
 import matplotlib.pyplot as plt
+import scipy.optimize as opt
 from unrollutility import unrollParams
 from cofiCostFunc import cofiCostFunc
 from checkCostFunction import checkCostFunction
+from normalizeRatings import normalizeRatings
+
 import codecs
+
 
 """ 
 =============== Part 1: Loading movie ratings dataset ================
@@ -123,3 +127,71 @@ for i in range(len(my_ratings)):
  Now, you will train the collaborative filtering model on a movie rating 
  dataset of 1682 movies and 943 users
 """
+mat = sio.loadmat ('ex8_movies.mat')
+
+#  Y is a 1682x943 matrix, containing ratings (1-5) of 1682 movies by 
+#  943 users
+#
+#  R is a 1682x943 matrix, where R(i,j) = 1 if and only if user j gave a
+#  rating to movie i
+Y = mat['Y']
+R = mat['R']
+
+#  Add our own ratings to the data matrix
+Y = np.c_[Y, my_ratings] # (1682, 944)
+R = np.c_[R, my_ratings != 0] # (1682, 944)
+
+#  Useful Values
+num_movies, num_users = Y.shape
+num_features = 10
+
+#  Normalize Ratings
+Ynorm, Ymean = normalizeRatings(Y, R)
+
+# Set Initial Parameters (Theta, X)
+X = np.random.random((num_movies, num_features))
+Theta = np.random.random((num_users, num_features))
+
+initial_parameters = unrollParams([X, Theta])
+
+# Set Regularization
+l = 10
+
+# Now, costFunction is a function that takes in only one argument
+minimize_method = "CG" # CG, L-BFGS-B, TNC, ...
+opts = {'maxiter':100}
+if minimize_method == 'L-BFGS-B':
+    opts['eps'] = 1e-8
+else:
+    pass
+res = opt.minimize(fun=cofiCostFunc,
+                   x0=initial_parameters,
+                   args=(Y, R, num_users, num_movies, num_features, l),
+                   method=minimize_method,
+                   jac=True,
+                   options=opts)
+ret = res.x
+
+# unfold X and Theta matrices    
+X = ret[:num_movies*num_features].reshape(num_movies, num_features)
+Theta = ret[num_movies*num_features:].reshape(num_users, num_features)
+
+print('\nRecommender system learning completed.')
+
+""" 
+================== Part 8: Recommendation for you ====================
+ After training the model, you can now make recommendations by computing
+ the predictions matrix. 
+"""
+# 所有用户的分数矩阵
+p = X @ Theta.T
+
+# 最后一个用户的预测分数， 也就是我们刚才添加的用户
+my_predictions = p[:,-1] + Ymean.flatten()
+
+ix = np.argsort(-my_predictions)
+print("\n Top recommendations for you:")
+for i in range(10):
+    j = ix[i]
+    print("Predicting rating %.1f for movie %s" 
+        % (my_predictions[j], movieList[j]))    

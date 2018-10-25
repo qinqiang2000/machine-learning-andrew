@@ -22,4 +22,4 @@ def cofiCostFunc(params, Y, R, num_users, num_movies, num_features, l=0):
 
     grad = unrollParams([X_grad, Theta_grad])
 
-    return J, grad
+    return J, grad.flatten()
